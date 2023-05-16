@@ -88,23 +88,33 @@ impl GlosorApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         configure_text_styles(&cc.egui_ctx);
 
-        if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-        }
-
         let preloaded = vec![
-            preload("example1", include_bytes!("../data/example.csv")).unwrap(),
             preload(
-                "glosor-eu-eng-åk6",
-                include_bytes!("../data/glosor-eu-eng-åk6.csv"),
+                "david-engelska-kap22.csv",
+                include_bytes!("../data/david-engelska-kap22.csv"),
             )
             .unwrap(),
+            preload("example1", include_bytes!("../data/example.csv")).unwrap(),
         ];
+
+        if let Some(storage) = cc.storage {
+            // TODO: duplicate code for preload
+            let mut loaded: GlosorApp =
+                eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+            let mut selected_preloaded = "".to_string();
+            if let Some(preloaded) = preloaded.first() {
+                selected_preloaded = preloaded.name.to_owned();
+            }
+            loaded.preloaded = preloaded;
+            loaded.selected_preloaded = selected_preloaded;
+            return loaded;
+        }
 
         let mut selected_preloaded = "".to_string();
         if let Some(preloaded) = preloaded.first() {
             selected_preloaded = preloaded.name.to_owned();
         }
+
         GlosorApp {
             build_info: format!(
                 "{} {}",
@@ -280,7 +290,8 @@ impl eframe::App for GlosorApp {
                                 let ok_label;
                                 let ok_color;
                                 if glosa.to.to_lowercase().trim() == input.to.to_lowercase().trim()
-                                    && glosa.from.to_lowercase().trim() == input.from.to_lowercase().trim()
+                                    && glosa.from.to_lowercase().trim()
+                                        == input.from.to_lowercase().trim()
                                 {
                                     ok_label = "✅";
                                     ok_color = green;
