@@ -9,3 +9,4 @@
 !/index.html
 !/Trunk.toml
 !/nginx.conf
+!/build.rs
