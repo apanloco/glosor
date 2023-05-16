@@ -1,6 +1,6 @@
-use egui::{FontId, TextStyle};
-use egui::FontFamily::{Monospace};
 use crate::error::Error;
+use egui::FontFamily::Monospace;
+use egui::{FontId, TextStyle};
 // TODO: style
 // TODO: show popup explaining contents of csv
 // TODO: download current glosor as csv
@@ -54,7 +54,10 @@ impl std::fmt::Display for State {
 }
 
 fn preload(name: &str, bytes: &[u8]) -> Result<Preloaded, Error> {
-    Ok(Preloaded { name: name.to_owned(), glosor: csv_to_glosor(bytes)? })
+    Ok(Preloaded {
+        name: name.to_owned(),
+        glosor: csv_to_glosor(bytes)?,
+    })
 }
 
 fn heading2() -> TextStyle {
@@ -66,7 +69,6 @@ fn heading3() -> TextStyle {
 }
 
 fn configure_text_styles(ctx: &egui::Context) {
-
     let mut style = (*ctx.style()).clone();
     style.text_styles = [
         (TextStyle::Heading, FontId::new(25.0, Monospace)),
@@ -77,16 +79,13 @@ fn configure_text_styles(ctx: &egui::Context) {
         (TextStyle::Button, FontId::new(12.0, Monospace)),
         (TextStyle::Small, FontId::new(8.0, Monospace)),
     ]
-        .into();
+    .into();
     ctx.set_style(style);
 }
 
 impl GlosorApp {
-
-
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-
         configure_text_styles(&cc.egui_ctx);
 
         // if let Some(storage) = cc.storage {
@@ -95,7 +94,11 @@ impl GlosorApp {
 
         let preloaded = vec![
             preload("example1", include_bytes!("../data/example.csv")).unwrap(),
-            preload("glosor-eu-eng-åk6", include_bytes!("../data/glosor-eu-eng-åk6.csv")).unwrap(),
+            preload(
+                "glosor-eu-eng-åk6",
+                include_bytes!("../data/glosor-eu-eng-åk6.csv"),
+            )
+            .unwrap(),
         ];
 
         let mut selected_preloaded = "".to_string();
@@ -103,7 +106,11 @@ impl GlosorApp {
             selected_preloaded = preloaded.name.to_owned();
         }
         GlosorApp {
-            build_info: format!("{} {}", env!("VERGEN_GIT_DESCRIBE"), env!("VERGEN_BUILD_TIMESTAMP")),
+            build_info: format!(
+                "{} {}",
+                env!("VERGEN_GIT_DESCRIBE"),
+                env!("VERGEN_BUILD_TIMESTAMP")
+            ),
             state: State::Initial,
             current_document: None,
             selected_preloaded,
@@ -114,10 +121,7 @@ impl GlosorApp {
 
 fn load_glosor(glosor: Glosor) -> Document {
     let input = glosor.glosor.clone();
-    Document {
-        glosor,
-        input,
-    }
+    Document { glosor, input }
 }
 
 impl GlosorApp {
@@ -208,7 +212,6 @@ impl eframe::App for GlosorApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-
         egui::TopBottomPanel::top("top_panel")
             .resizable(false)
             //.min_height(40.0)
@@ -228,10 +231,13 @@ impl eframe::App for GlosorApp {
                     .width(300.0)
                     .show_ui(ui, |ui| {
                         for preloaded in &self.preloaded {
-                            ui.selectable_value(&mut self.selected_preloaded, preloaded.name.to_string(), &preloaded.name);
+                            ui.selectable_value(
+                                &mut self.selected_preloaded,
+                                preloaded.name.to_string(),
+                                &preloaded.name,
+                            );
                         }
-                    },
-                    );
+                    });
                 if ui.add(egui::Button::new("Load")).clicked() {
                     println!("selected: {}", self.selected_preloaded);
                     for preloaded in &self.preloaded {
@@ -257,10 +263,8 @@ impl eframe::App for GlosorApp {
                             let input = &mut document.input[i];
 
                             if self.state == State::Loaded {
-                                egui::TextEdit::singleline(&mut glosa.from)
-                                    .show(ui);
-                                egui::TextEdit::singleline(&mut glosa.to)
-                                    .show(ui);
+                                egui::TextEdit::singleline(&mut glosa.from).show(ui);
+                                egui::TextEdit::singleline(&mut glosa.to).show(ui);
                             } else {
                                 egui::TextEdit::singleline(&mut input.from)
                                     .interactive(self.state != State::Results)
@@ -275,7 +279,9 @@ impl eframe::App for GlosorApp {
                                 let red = egui::Color32::from_rgb(255, 100, 100);
                                 let ok_label;
                                 let ok_color;
-                                if glosa.to.to_lowercase() == input.to.to_lowercase() && glosa.from.to_lowercase() == input.from.to_lowercase() {
+                                if glosa.to.to_lowercase() == input.to.to_lowercase()
+                                    && glosa.from.to_lowercase() == input.from.to_lowercase()
+                                {
                                     ok_label = "✅";
                                     ok_color = green;
                                 } else {
@@ -283,21 +289,23 @@ impl eframe::App for GlosorApp {
                                     ok_color = red;
                                 };
 
-                                ui.label(egui::RichText::new(ok_label)
-                                    .color(ok_color)
-                                    ).on_hover_text(format!("{} / {}", &glosa.from, &glosa.to));
+                                ui.label(egui::RichText::new(ok_label).color(ok_color))
+                                    .on_hover_text(format!("{} / {}", &glosa.from, &glosa.to));
                             }
 
                             ui.end_row();
                         }
                     });
 
-                if (self.state == State::Loaded || self.state == State::Results) && ui.add(egui::Button::new("Testa Mig! 🐸")).clicked() {
+                if (self.state == State::Loaded || self.state == State::Results)
+                    && ui.add(egui::Button::new("Testa Mig! 🐸")).clicked()
+                {
                     self.current_document = Some(GlosorApp::shuffle_document(document));
                     self.state = State::Testing;
                 }
 
-                if self.state == State::Testing && ui.add(egui::Button::new("Klar! 🐸")).clicked() {
+                if self.state == State::Testing && ui.add(egui::Button::new("Klar! 🐸")).clicked()
+                {
                     self.state = State::Results;
                 }
             }

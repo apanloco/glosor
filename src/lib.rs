@@ -1,6 +1,5 @@
-
 mod app;
-mod glosor;
 mod error;
+mod glosor;
 
 pub use app::GlosorApp;
