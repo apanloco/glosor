@@ -217,7 +217,7 @@ impl eframe::App for GlosorApp {
                     ui.heading("Glosor");
                     ui.add(egui::Label::new("[?]").sense(egui::Sense::click()))
                         .on_hover_text(
-                            format!("Glosor online hjälper dig att plugga glosor.\nFörst laddar du glosorna, sen testar du dig.\nDu kan dra-o-släppa in glosor i CSV-format. Exempelfil:\n---engelska,svenska\nhello,hej\nname,namn\n---\n\n\n{}", &self.build_info));
+                            format!("Glosor online hjälper dig att plugga glosor.\nFörst laddar du glosorna, sen testar du dig.\nDu kan dra-o-släppa in glosor i CSV-format. Exempelfil (strecken ingår inte):\n---\nengelska,svenska\nhello,hej\nname,namn\n---\n\n\n{}", &self.build_info));
                 });
             });
 
@@ -275,7 +275,7 @@ impl eframe::App for GlosorApp {
                                 let red = egui::Color32::from_rgb(255, 100, 100);
                                 let ok_label;
                                 let ok_color;
-                                if glosa.to == input.to && glosa.from == input.from {
+                                if glosa.to.to_lowercase() == input.to.to_lowercase() && glosa.from.to_lowercase() == input.from.to_lowercase() {
                                     ok_label = "✅";
                                     ok_color = green;
                                 } else {
