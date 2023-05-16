@@ -10,3 +10,4 @@
 !/Trunk.toml
 !/nginx.conf
 !/build.rs
+!/data
