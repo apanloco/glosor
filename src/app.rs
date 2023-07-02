@@ -8,6 +8,10 @@ use egui::{FontId, TextStyle};
 // TODO: bigger font
 use crate::glosor::{csv_to_glosor, Glosa, Glosor};
 
+pub mod built {
+    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
+
 #[derive(serde::Deserialize, serde::Serialize, Default)]
 #[serde(default)]
 struct Preloaded {
@@ -55,10 +59,9 @@ impl std::fmt::Display for State {
 
 fn generate_build_info() -> String {
     format!(
-        "{} {} {}",
-        env!("CARGO_PKG_VERSION"),
-        env!("VERGEN_GIT_DESCRIBE"),
-        env!("VERGEN_BUILD_TIMESTAMP")
+        "{} {}",
+        built::PKG_VERSION,
+        built::GIT_COMMIT_HASH_SHORT.unwrap_or("?"),
     )
 }
 
@@ -88,7 +91,7 @@ fn configure_text_styles(ctx: &egui::Context) {
         (TextStyle::Button, FontId::new(12.0, Monospace)),
         (TextStyle::Small, FontId::new(8.0, Monospace)),
     ]
-    .into();
+        .into();
     ctx.set_style(style);
 }
 
@@ -102,7 +105,7 @@ impl GlosorApp {
                 "david-engelska-kap22.csv",
                 include_bytes!("../data/david-engelska-kap22.csv"),
             )
-            .unwrap(),
+                .unwrap(),
             preload("example1", include_bytes!("../data/example.csv")).unwrap(),
         ];
 
@@ -298,7 +301,7 @@ impl eframe::App for GlosorApp {
                                 let ok_color;
                                 if glosa.to.to_lowercase().trim() == input.to.to_lowercase().trim()
                                     && glosa.from.to_lowercase().trim()
-                                        == input.from.to_lowercase().trim()
+                                    == input.from.to_lowercase().trim()
                                 {
                                     ok_label = "✅";
                                     ok_color = green;

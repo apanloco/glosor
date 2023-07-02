@@ -6,7 +6,7 @@ edition = "2021"
 build = "build.rs"
 
 [build-dependencies]
-vergen = { version = "8.0.0", features = ["build", "cargo", "git", "gitcl", "rustc", "si"] }
+built = { version = "0.6", features = ["git2", "chrono"] }
 
 [dependencies]
 egui = "0.21"
@@ -20,6 +20,7 @@ eframe = { version = "0.21", default-features = false, features = [
 serde = { version = "1", features = ["derive"] }
 csv = "1.1"
 rand = "0.8"
+getrandom = { version="0.2", features = ["js"]}
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
