@@ -53,6 +53,15 @@ impl std::fmt::Display for State {
     }
 }
 
+fn generate_build_info() -> String {
+    format!(
+        "{} {} {}",
+        env!("CARGO_PKG_VERSION"),
+        env!("VERGEN_GIT_DESCRIBE"),
+        env!("VERGEN_BUILD_TIMESTAMP")
+    )
+}
+
 fn preload(name: &str, bytes: &[u8]) -> Result<Preloaded, Error> {
     Ok(Preloaded {
         name: name.to_owned(),
@@ -105,8 +114,10 @@ impl GlosorApp {
             if let Some(preloaded) = preloaded.first() {
                 selected_preloaded = preloaded.name.to_owned();
             }
+
             loaded.preloaded = preloaded;
             loaded.selected_preloaded = selected_preloaded;
+            loaded.build_info = generate_build_info();
             return loaded;
         }
 
@@ -116,11 +127,7 @@ impl GlosorApp {
         }
 
         GlosorApp {
-            build_info: format!(
-                "{} {}",
-                env!("VERGEN_GIT_DESCRIBE"),
-                env!("VERGEN_BUILD_TIMESTAMP")
-            ),
+            build_info: generate_build_info(),
             state: State::Initial,
             current_document: None,
             selected_preloaded,
@@ -230,7 +237,7 @@ impl eframe::App for GlosorApp {
                     ui.heading("Glosor");
                     ui.add(egui::Label::new("[?]").sense(egui::Sense::click()))
                         .on_hover_text(
-                            format!("Glosor online hjälper dig att plugga glosor.\nFörst laddar du glosorna, sen testar du dig.\nDu kan dra-o-släppa in glosor i CSV-format. Exempelfil (strecken ingår inte):\n---\nengelska,svenska\nhello,hej\nname,namn\n---\n\n\n{}", &self.build_info));
+                            format!("Glosor online hjälper dig att plugga glosor.\nFörst laddar du glosorna, sen testar du dig.\nDu kan dra-o-släppa in glosor i CSV-format. Exempelfil (strecken ingår inte):\n---\nengelska,svenska\nhello,hej\nname,namn\n---\n\n{}", &self.build_info));
                 });
             });
 
