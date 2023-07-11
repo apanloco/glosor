@@ -1,0 +1,56 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: glosor
+  labels:
+    app: glosor
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: glosor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: glosor
+  template:
+    metadata:
+      labels:
+        app: glosor
+    spec:
+      containers:
+        - name: caticorn
+          image: arn.ocir.io/axiirc3u3iv6/glosor:latest
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: ocirsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: glosor
+  labels:
+    app: glosor
+spec:
+  ports:
+    - port: 80
+      name: glosor
+  selector:
+    app: glosor
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: app-tls
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`glosor.akerud.se`)
+      services:
+        - name: glosor
+          port: 80
+  tls:
+    certResolver: le
